@@ -14,8 +14,8 @@ public class GameControl : MonoBehaviour
 	public GameObject gameOvertext;				//A reference to the object that displays the text which appears when the player dies.
 
 	private int score = 0;						//The player's score.
-	public bool gameOver = false;				//Is the game over?
-	public float scrollSpeed = -1.5f;			//Speed with which the obstacles and background move
+	public bool gameOver = true;				//Is the game over?
+	public float scrollSpeed = -0.75f;			//Speed with which the obstacles and background move
 
 
 	public GameObject startMenuUI;				//Reference to the Menu UI (When the game is started)
@@ -156,11 +156,16 @@ public class GameControl : MonoBehaviour
 		}
 	}
 
-	/// <summary>
-	/// Function registered as button tap listener for the Replay button in the Game Over UI, displayed when the game is over.
-	/// It calls OnGameOverConfirmed() event to reset all the fields and values and brings the game to its initial state.
-	/// </summary>
-	public void ConfirmGameOver()
+    void Start()
+    {
+		//Time.timeScale = 20f;
+    }
+
+    /// <summary>
+    /// Function registered as button tap listener for the Replay button in the Game Over UI, displayed when the game is over.
+    /// It calls OnGameOverConfirmed() event to reset all the fields and values and brings the game to its initial state.
+    /// </summary>
+    public void ConfirmGameOver()
 	{
 		SetPageState(UserInterfaceState.Start);
 		scoreText.text = "Score: 0";
