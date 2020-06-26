@@ -98,12 +98,12 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0
-  m_GravityScale: 0.66
+  m_GravityScale: 1
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!60 &6000000
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -173,4 +173,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83af53bce501149a78afac6b1a126947, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  upForce: 200
+  upForce: 190
+  tiltSmooth: 1.25
+  tapSound: {fileID: 0}
+  scoreSound: {fileID: 0}
+  dieSound: {fileID: 0}
+  startPos: {x: -1.8, y: 0.5583044, z: 0}
