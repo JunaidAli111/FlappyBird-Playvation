@@ -10,6 +10,8 @@ public class Column : MonoBehaviour
 	{
 		if(other.GetComponent<Bird>() != null)
 		{
+			//Score sound
+			GameControl.instance.scoreSound.Play();
 			//If the bird hits the trigger collider in between the columns then
 			//tell the game control that the bird scored.
 			GameControl.instance.BirdScored();

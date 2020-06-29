@@ -26,9 +26,16 @@ public class GameControl : MonoBehaviour
 	public GameObject startMenuUI;				//Reference to the Menu UI (When the application is started)
 	public GameObject gameOverUI;               //Reference to the Game Over UI (When the bird crashes on obstacles or ground)
 	public GameObject countdownUI;              //Reference to the Countdown UI (When the user taps play button, game countdown starts)
-	public GameObject GamePlayUI;				//Reference to the Gameplay UI (During the gameplay, showing number of lives)
 
-	private FirebaseFirestore db;				//Reference to the database in our Firebase cloud
+	private FirebaseFirestore db;               //Reference to the database in our Firebase cloud
+
+	//Sounds for different events of the game, as the names suggest.
+	public AudioSource dieSound;
+	public AudioSource hitSound;
+	public AudioSource powerUpSound;
+	public AudioSource scoreSound;
+	public AudioSource swooshSound;
+	public AudioSource tapSound;
 
 	enum UserInterfaceState //Enum to reference the Userinterface states, depending on the state of the game
 	{

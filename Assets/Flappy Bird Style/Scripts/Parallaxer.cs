@@ -186,8 +186,8 @@ public class Parallaxer : MonoBehaviour
 				t.GetComponent<Column>().Animate(true);
 			}
 
-			//10% chance of getting a power up which gives one extra life
-			if (Random.Range(0, 100) < 10)
+			//5% chance of getting a power up which gives one extra life
+			if (Random.Range(0, 100) < 5)
             {
 				//activate the power up game object
 				Transform LifePowerUp = t.GetChild(2);

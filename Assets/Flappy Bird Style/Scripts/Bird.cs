@@ -16,12 +16,8 @@ public class Bird : MonoBehaviour
 	private Rigidbody2D rb2d;               //Holds a reference to the Rigidbody2D component of the bird.
 
 	Quaternion downRotation;			//Rotation of the bird when its freefalling.
-	Quaternion forwardRotation;			//Rotation of the bird when the user taps on the screen, making it face forward.
+	Quaternion forwardRotation;         //Rotation of the bird when the user taps on the screen, making it face forward.
 
-	//Sounds for different events of the game, as the names suggest.
-	public AudioSource tapSound;
-	public AudioSource scoreSound;
-	public AudioSource dieSound;
 
 	public Vector3 startPos;			//Initial position of the bird 
 
@@ -40,6 +36,8 @@ public class Bird : MonoBehaviour
 		forwardRotation = Quaternion.Euler(0f, 0f, 40f);
 		//All the applications of physics will not be applicable on the bird until the game starts.
 		rb2d.simulated = false;
+		//Play swoosh sound on start
+		GameControl.instance.swooshSound.Play();
 	}
 
 	void Update()
@@ -49,8 +47,10 @@ public class Bird : MonoBehaviour
 		if (isDead) { return; }
 		
 		//Look for input to trigger a "flap".
-		if (Input.GetMouseButtonDown(0)) 
+		if (Input.GetMouseButtonDown(0))
 		{
+			//Tap sound
+			GameControl.instance.tapSound.Play();
 			//...tell the animator about it and then...
 			anim.SetTrigger("Flap");
 			//...zero out the birds current y velocity before...
@@ -121,8 +121,10 @@ public class Bird : MonoBehaviour
 		isDead = true;
 		//Allow the detection of the first collision in OnCollisionEnter2D() event again
 		CollisionOccured = false;
-		//
+		//Game is in over state unless the gameplay is on
 		GameControl.instance.gameOver = true;
+		//Swoosh sound
+		GameControl.instance.swooshSound.Play();
 	}
 
 	/// <summary>
@@ -133,6 +135,9 @@ public class Bird : MonoBehaviour
 		//If the bird is having jittery collisions, so to avoid calling the OnCollisionEnter2D again and again
 		if (CollisionOccured == true) return;
 
+		//Hit sound on bird hitting any of the obstacles
+		GameControl.instance.hitSound.Play();
+
 		//Negative one life for the bird
 		GameControl.instance.UpdateLives(-1);
 		//First collision detected, shouldn't be called again for jittery collisions
@@ -141,6 +146,8 @@ public class Bird : MonoBehaviour
 		//If the life count of the bird is zero, game over path is followed
 		if (GameControl.instance.LifeCount == 0)
 		{
+			//Play the die sound
+			GameControl.instance.dieSound.Play();
 			// If the bird collides with something set it to dead...
 			isDead = true;
 			// Zero out the bird's velocity
@@ -156,6 +163,8 @@ public class Bird : MonoBehaviour
 		//basically the game quickly resets, without any pause
 		else
 		{
+			//Swoosh sound
+			GameControl.instance.swooshSound.Play();
 			// Zero out the bird's velocity
 			rb2d.velocity = Vector2.zero;
 			//Set the birds position to its inital position
@@ -165,8 +174,6 @@ public class Bird : MonoBehaviour
 			OnBirdCrashed();
 			//Detect collisions again :)
 			CollisionOccured = false;
-
 		}
 	}
-
 }

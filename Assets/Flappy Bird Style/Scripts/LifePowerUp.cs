@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 
 public class LifePowerUp : MonoBehaviour
@@ -9,6 +7,8 @@ public class LifePowerUp : MonoBehaviour
     {
         if (collision.GetComponent<Bird>() != null)
         {
+            //Powerup sound
+            GameControl.instance.powerUpSound.Play();
             //As the bird collides or captures the power, award one life to the bird.
             GameControl.instance.UpdateLives(1);
             gameObject.SetActive(false);
