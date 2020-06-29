@@ -173,7 +173,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83af53bce501149a78afac6b1a126947, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  upForce: 190
+  upForce: 200
   tiltSmooth: 1.25
   tapSound: {fileID: 0}
   scoreSound: {fileID: 0}

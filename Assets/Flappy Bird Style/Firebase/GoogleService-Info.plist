@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>193723344343-u7p67c42rjqelccvotnqbf70k5ap8anp.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.193723344343-u7p67c42rjqelccvotnqbf70k5ap8anp</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDBKv-Ng_-hZKA0S0PAY6nh5gA6_8vNoP8</string>
+	<key>GCM_SENDER_ID</key>
+	<string>193723344343</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.playvation.flappybird</string>
+	<key>PROJECT_ID</key>
+	<string>flappy-bird-playvation</string>
+	<key>STORAGE_BUCKET</key>
+	<string>flappy-bird-playvation.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:193723344343:ios:7301624aeeba91337d1792</string>
+	<key>DATABASE_URL</key>
+	<string>https://flappy-bird-playvation.firebaseio.com</string>
+</dict>
+</plist>

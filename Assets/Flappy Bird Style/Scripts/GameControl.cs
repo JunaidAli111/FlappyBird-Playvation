@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEngine.UI;
+using Firebase.Firestore;
+using Firebase.Extensions;
+using System.Collections.Generic;
+using System.Linq;
 
 public class GameControl : MonoBehaviour 
 {
@@ -10,18 +13,22 @@ public class GameControl : MonoBehaviour
 	public static event GameDelegate OnGameOverConfirmed; //Even that triggers when the user hit replay button after the game is over.
 
 	public static GameControl instance;			//A reference to our game control script so we can access it statically.
-	public Text scoreText;						//A reference to the UI text component that displays the player's score.
+	public Text scoreText;                      //A reference to the UI text component that displays the player's score.
+	public Text LivesText;						//A reference to the UI text element number of remaining Lives/Life Powerups
 	public GameObject gameOvertext;				//A reference to the object that displays the text which appears when the player dies.
 
 	private int score = 0;						//The player's score.
 	public bool gameOver = true;				//Is the game over?
-	public float scrollSpeed = -0.75f;			//Speed with which the obstacles and background move
+	public float scrollSpeed = -0.75f;          //Speed with which the obstacles and background move
+	public int LifeCount = 1;					//How many lives does our player have?
 
 
-	public GameObject startMenuUI;				//Reference to the Menu UI (When the game is started)
+	public GameObject startMenuUI;				//Reference to the Menu UI (When the application is started)
 	public GameObject gameOverUI;               //Reference to the Game Over UI (When the bird crashes on obstacles or ground)
 	public GameObject countdownUI;              //Reference to the Countdown UI (When the user taps play button, game countdown starts)
+	public GameObject GamePlayUI;				//Reference to the Gameplay UI (During the gameplay, showing number of lives)
 
+	private FirebaseFirestore db;				//Reference to the database in our Firebase cloud
 
 	enum UserInterfaceState //Enum to reference the Userinterface states, depending on the state of the game
 	{
@@ -41,17 +48,11 @@ public class GameControl : MonoBehaviour
 		else if(instance != this)
 			//...destroy this one because it is a duplicate.
 			Destroy (gameObject);
+
+		//get a reference to Firestore cloud service to utilise the Firebase database capabilites.
+		db = FirebaseFirestore.DefaultInstance;
 	}
 
-	void Update()
-	{
-		//If the game is over and the player has pressed some input...
-		//if (gameOver && Input.GetMouseButtonDown(0))
-		//{
-			//...reload the current scene.
-			///SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-		//}
-	}
 
 	/// <summary>
     /// Function to be registered as an event when the bird scores or passes through one of the obstacles.
@@ -68,6 +69,7 @@ public class GameControl : MonoBehaviour
 		scoreText.text = "Score: " + score.ToString();
 	}
 
+	public int HighScore;
 
 	/// <summary>
 	/// Function to be registered as an event when the bird dies, crashing into obstacles or ground.
@@ -76,17 +78,63 @@ public class GameControl : MonoBehaviour
 	public void BirdDied()
 	{
 		gameOver = true;
-		int savedScore = PlayerPrefs.GetInt("HighScore");
-		if (score > savedScore)
-		{
-			PlayerPrefs.SetInt("HighScore", score);
-		}
 
-		SetPageState(UserInterfaceState.GameOver);
+		//Retrieve the collection named 'High Score Collection' from our database in the Firebase Cloud
+		CollectionReference HighScoreCollection = db.Collection("High Score Collection");
+
+		HighScore = 0;
+
+		//Retrieve the results from the cloud
+		HighScoreCollection.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+		{
+			QuerySnapshot snapshot = task.Result;
+			//Convert the queury's result from the server to List for convenience
+			List<DocumentSnapshot> ListOfDocs = snapshot.ToList();
+
+			//Since there is only one Document in the the collection, 'High Score Document'
+			Dictionary<string, object> documentDictionary = ListOfDocs[0].ToDictionary();
+
+			//Check for the field containing our high score
+			if (documentDictionary.ContainsKey("High Score"))
+			{
+				if (int.TryParse(documentDictionary["High Score"].ToString(), out HighScore))
+				{
+					//if the current score of the user is higher than the already registered high score, then update it on the cloud
+					if (score > HighScore)
+					{
+						SetHighScore(score);
+					}
+
+					else
+					{
+						SetPageState(UserInterfaceState.GameOver);
+					}
+				}
+			}
+		});
 	}
 
+	/// <summary>
+    /// Updates the high score on the firebase cloud
+    /// </summary>
+    /// <param name="score">The score</param>
+	public void SetHighScore (int score)
+	{
+		//Reference to the High Score Document stored in the cloud
+		DocumentReference docRef = db.Collection("High Score Collection").Document("High Score Document");
 
+		//Make the key value pair for our high score to be updated
+		Dictionary<string, object> user = new Dictionary<string, object>
+		{
+				{ "High Score", score }
+		};
 
+		//Update the high score on the cloud and show the Game Over UI after the queury is executed
+		docRef.SetAsync(user).ContinueWithOnMainThread(task => {
+			HighScore = score;
+			SetPageState(UserInterfaceState.GameOver);
+		});
+	}
 
 
 	/// <summary>
@@ -156,10 +204,6 @@ public class GameControl : MonoBehaviour
 		}
 	}
 
-    void Start()
-    {
-		//Time.timeScale = 20f;
-    }
 
     /// <summary>
     /// Function registered as button tap listener for the Replay button in the Game Over UI, displayed when the game is over.
@@ -169,6 +213,8 @@ public class GameControl : MonoBehaviour
 	{
 		SetPageState(UserInterfaceState.Start);
 		scoreText.text = "Score: 0";
+		LivesText.text = "Lives: 1";
+		LifeCount = 1;
 		OnGameOverConfirmed();
 	}
 
@@ -180,4 +226,15 @@ public class GameControl : MonoBehaviour
 	{
 		SetPageState(UserInterfaceState.Countdown);
 	}
+
+	/// <summary>
+    /// Update the Lives or Life Count of the bird.
+    /// Called when bird gets a Life Power up or crashes on the ground/obstacle.
+    /// </summary>
+    /// <param name="Lives">Lives to be updated. +1 for Power up, -1 for crashing into obstacle</param>
+    public void UpdateLives(int Lives)
+    {
+		LifeCount += Lives;
+		LivesText.text = "Lives: " + LifeCount;
+    }
 }

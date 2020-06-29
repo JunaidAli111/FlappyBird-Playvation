@@ -5,6 +5,7 @@ public class Bird : MonoBehaviour
 {
 	public delegate void BirdDelegate();
 	public static event BirdDelegate OnBirdDied; //Event that triggers when the bird dies.
+	public static event BirdDelegate OnBirdCrashed; // Event that triggers when bird crashes on ground or obstacle but has more than one lives
 	public static event BirdDelegate OnBirdScored; //Event that triggers when the game a bird passes through one obstacle.
 
 	public float upForce;                   //Upward force of the "flap".
@@ -22,10 +23,13 @@ public class Bird : MonoBehaviour
 	public AudioSource scoreSound;
 	public AudioSource dieSound;
 
-	public Vector3 startPos;
+	public Vector3 startPos;			//Initial position of the bird 
+
+	private bool CollisionOccured = false;		//This boolean with force the detection of only first collision in case of jittery collisions
 
 	void Start()
 	{
+		Time.timeScale = 1f;
 		//Get reference to the Animator component attached to this GameObject.
 		anim = GetComponent<Animator> ();
 		//Get and store a reference to the Rigidbody2D attached to this GameObject.
@@ -105,13 +109,20 @@ public class Bird : MonoBehaviour
 	/// </summary>
 	void OnGameOverConfirmed()
 	{
-		SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-		/*anim.SetTrigger("Restart");
+		//Reset the sprite of bird from dead to alive
+		anim.SetTrigger("Restart");
+		//Set the birds position to its inital position
 		transform.localPosition = startPos;
+		//Set the birds rotation to its inital rotation
 		transform.rotation = Quaternion.identity;
+		//Physics operations will not work on the bird until the user restarts the gameplay
 		rb2d.simulated = false;
+		//Bird is assumed to be dead until the game play starts
 		isDead = true;
-		GameControl.instance.gameOver = false;*/
+		//Allow the detection of the first collision in OnCollisionEnter2D() event again
+		CollisionOccured = false;
+		//
+		GameControl.instance.gameOver = true;
 	}
 
 	/// <summary>
@@ -119,14 +130,43 @@ public class Bird : MonoBehaviour
 	/// </summary>
 	void OnCollisionEnter2D(Collision2D other)
 	{
-		// Zero out the bird's velocity
-		rb2d.velocity = Vector2.zero;
-		// If the bird collides with something set it to dead...
-		isDead = true;
-		//...tell the Animator about it...
-		anim.SetTrigger ("Die");
-		//...and tell the game control about it.
+		//If the bird is having jittery collisions, so to avoid calling the OnCollisionEnter2D again and again
+		if (CollisionOccured == true) return;
 
-		OnBirdDied();
+		//Negative one life for the bird
+		GameControl.instance.UpdateLives(-1);
+		//First collision detected, shouldn't be called again for jittery collisions
+		CollisionOccured = true;
+
+		//If the life count of the bird is zero, game over path is followed
+		if (GameControl.instance.LifeCount == 0)
+		{
+			// If the bird collides with something set it to dead...
+			isDead = true;
+			// Zero out the bird's velocity
+			rb2d.velocity = Vector2.zero;
+			//...tell the Animator about it...
+			anim.SetTrigger("Die");
+			//...and tell the game control about it.
+
+			OnBirdDied();
+		}
+
+		//If the bird has more than one lives, then the game is reset and the user keeps playing the game
+		//basically the game quickly resets, without any pause
+		else
+		{
+			// Zero out the bird's velocity
+			rb2d.velocity = Vector2.zero;
+			//Set the birds position to its inital position
+			transform.localPosition = startPos;
+			//Set the birds rotation to its inital rotation
+			transform.rotation = Quaternion.identity;
+			OnBirdCrashed();
+			//Detect collisions again :)
+			CollisionOccured = false;
+
+		}
 	}
+
 }

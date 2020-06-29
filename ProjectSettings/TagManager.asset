@@ -7,6 +7,7 @@ TagManager:
   - Scenery
   - Columns
   - Grounds
+  - PowerUp
   layers:
   - Default
   - TransparentFX
